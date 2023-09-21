@@ -1,13 +1,12 @@
 *** Settings ***
-Library     RPA.Robocorp.WorkItems
-Library     RPA.Tables
-Library     RPA.Database
-Library     RPA.Robocorp.Vault
-Resource    SwagLabs.robot
+Library             RPA.Robocorp.WorkItems
+Library             RPA.Tables
+Library             RPA.Database
+Library             RPA.Robocorp.Vault
+Resource            SwagLabs.robot
+Resource            database.resource
 
-
-*** Variables ***
-${TABLE}    workitems    # name of table in your database containing the stored work items
+Suite Teardown      Close database connection
 
 
 *** Tasks ***
@@ -35,7 +34,7 @@ Load and Process All Orders
         ...    code=UNCAUGHT_ERROR
         ...    message=${err}
     END
-    Close database connection
+
     [Teardown]    Close browser
 
 
@@ -44,7 +43,7 @@ Load and Process Order
     [Documentation]    Order all products in one work item products list
     ${work_item}=    Get work item variables
     ${id}=    Set Variable    ${work_item}[id]
-    ${name}    ${zip}    ${items}=    Get workitem from db    ${id}
+    ${name}    ${zip}    ${items}=    Get workitem from database    ${id}
     TRY
         Process order    ${name}    ${zip}    ${items}
         Release Input Work Item    DONE
@@ -90,7 +89,7 @@ Load and Process Order
         ...    message=${err}
     END
 
-Get workitem from db
+Get workitem from database
     [Documentation]    Receives unique ID from Control Room Work Item
     ...    which is then used to search and pull the stored data from the SQL database for processing
     [Arguments]    ${id}
@@ -102,17 +101,3 @@ Get workitem from db
     END
     @{items}=    Split String    ${str_items}    separator=,
     RETURN    ${name}    ${zip}    ${items}
-
-Open database connection
-    [Documentation]    opens a connection to a database (mysql in this case)
-    ...    connection data is stored in the Control Room Vault
-    ${db_info}=    Get Secret    mysql_data
-    Connect To Database    pymysql
-    ...    ${db_info}[database]
-    ...    ${db_info}[username]
-    ...    ${db_info}[password]
-    ...    ${db_info}[location]
-
-Close database connection
-    [Documentation]    closes database connection
-    Disconnect From Database

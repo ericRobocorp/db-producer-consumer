@@ -1,7 +1,7 @@
 tasks:
   Split orders file:
     robotTaskName: Split orders file
-  
+
   Load and Process All Orders:
     robotTaskName: Load and Process All Orders
 
