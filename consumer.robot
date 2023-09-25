@@ -92,6 +92,7 @@ Load and Process Order
 Get workitem from database
     [Documentation]    Receives unique ID from Control Room Work Item
     ...    which is then used to search and pull the stored data from the SQL database for processing
+    ...    the Items value is converted back to a dictionary from a string using the SPLIT STRING keyword
     [Arguments]    ${id}
     ${work_item}=    Query    Select id,name,zip,items FROM ${TABLE} WHERE id='${id}'
     FOR    ${row}    IN    @{work_item}

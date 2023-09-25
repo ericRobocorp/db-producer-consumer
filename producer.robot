@@ -50,6 +50,7 @@ Split orders file
 Store workitems in database
     [Documentation]    Generates a random string to be used as the unique ID for the row in the database
     ...    then stores the work item data in the database and returns only the unique ID
+    ...    the Items dictionary is converted to a string using the CATENATE keyword prior to storage in the database
     [Arguments]    ${name}    ${zip}    ${items}
     ${id}=    Generate Random String    length=8    chars=[NUMBERS]
     ${str_items}=    Catenate    SEPARATOR=,    @{items}

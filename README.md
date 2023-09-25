@@ -1,21 +1,23 @@
-# Web store order processor: multiple work items example
+# Web store order processor: Utilizing a local database to store work items.
 
 <img src="images/work-data-management.png" style="margin-bottom:20px">
 
-This robot splits orders by customer from an incoming Excel file. The orders are then handled individually and in parallel. It includes a second version of the consumer task which produces errors, which can be used to demonstrate how the Control Room receives errors from bots.
+This robot is an example of how to store Work Item data in a local database for additional security needs. The robot splits orders by customer from an incoming Excel file storing the work item data in a local database, only a Unique ID is stored in Control Room. The orders are then handled individually and in parallel. It includes a second version of the consumer task which produces errors, which can be used to demonstrate how the Control Room receives errors from bots.
 
 The robot demonstrates the Work Items feature of Robocorp Control Room:
 
 - Triggering a process with custom payloads (input)
+- Storing Work Item details in a local database
 - Passing data and files between process steps
 - Parallel execution of steps
 - Robot and Control Room [exception handling](https://robocorp.com/docs/development-guide/control-room/work-items#work-item-exception-handling)
 
 > We recommended checking out the article "[Using work items](https://robocorp.com/docs/development-guide/control-room/data-pipeline)" before diving in.
+> It is also recommended to read this article "[Working with database](https://robocorp.com/docs/development-guide/databases)" before connecting to your database.
 
 ## Tasks
 
-The robot is split into two tasks, meant to run as separate steps. The first task generates (produces) data, and the second one reads (consumes) and processes that data. A bonus task exists which can be used to mock Control Room and Robot error handling.
+The robot is split into two tasks, meant to run as separate steps. The first task generates (produces) data, connects and stores data in the database, stores only a Unique ID in Control Room, and the second one reads (consumes), the Unique ID, connects to the database for the Work Item data, and processes that data. A bonus task exists which can be used to mock Control Room and Robot error handling.
 
 > [Producer-consumer](https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem), Wikipedia.
 
@@ -23,12 +25,17 @@ The robot is split into two tasks, meant to run as separate steps. The first tas
 
 - Reads an Excel file from the work item
 - Splits it into orders by customer
+- Creates a Unique ID
+- Connects to a MySql database
+- Stores Work Items in the database
 - Creates a new work item for each order
 
 ### The second task (the consumer)
 
 - Logs in to the web store
 - Reads the products in the order from the work item
+  - Gets Unique ID from Control Room
+  - Connects to the database for Work Item data
   - Loops through work items to avoid time spent logging in per each work item.
 - Orders the products
 
@@ -39,6 +46,10 @@ The robot is split into two tasks, meant to run as separate steps. The first tas
   - Some errors will cause the run to fail after work items are already released (therefore the work item will still complete).
   - Some errors will be reported at the Control Room level with appropriate codes and messages.
 - You can automatically retry errors with the [Retry Bot in the Portal](https://robocorp.com/portal/robot/robocorp/example-retry-work-item-bot).
+
+## Database Connections
+- Database connections are made from calling the ** database.resource ** resource.
+- Connection information is stored in Control Room Vault but can be stored in the secure location of your choice
 
 ## Excel input file
 
